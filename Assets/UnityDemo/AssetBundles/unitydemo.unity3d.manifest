@@ -1,0 +1,35 @@
+ManifestFileVersion: 0
+CRC: 2503050026
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: f33730d49a5955034def6df2d7224458
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 32eca291a6bc7126485c6ae5b7c8a39b
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/UnityDemo/AbAsset.FBX
+Dependencies: []
