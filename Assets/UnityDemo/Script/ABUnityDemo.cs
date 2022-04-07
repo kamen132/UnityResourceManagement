@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -6,43 +7,61 @@ using UnityEngine.Networking;
 
 public class ABUnityDemo : MonoBehaviour
 {
-    public const string manifestFilePath = "";
-    
+    private string abFilePath;
+    private string manifestFilePath;
+
+    private void Awake()
+    {
+        abFilePath = Application.dataPath + "/UnityDemo/AssetBundles/unitydemo.unity3d";
+        manifestFilePath = Application.dataPath + "/UnityDemo/AssetBundles/AssetBundles.manifest";
+    }
+
+    private void Start()
+    {
+        //第一种加载
+        //StartCoroutine(LoadFromMemoryAsync(abFilePath));
+        //第二种加载
+        //LoadFromFile();
+
+        StartCoroutine(InstantiateObject());
+    }
+
+
     //AssetBundle.LoadFromMemoryAsync
     IEnumerator LoadFromMemoryAsync(string path)
     {
         AssetBundleCreateRequest createRequest = AssetBundle.LoadFromMemoryAsync(File.ReadAllBytes(path));
         yield return createRequest;
         AssetBundle bundle = createRequest.assetBundle;
-        var prefab = bundle.LoadAsset<GameObject>("MyObject");
+        var prefab = bundle.LoadAsset<GameObject>("AbAsset");
         Instantiate(prefab);
     }
 
     //AssetBundle.LoadFromFile
     public void LoadFromFile()
     {
-        var myLoadedAssetBundle = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, "myassetBundle"));
+        var myLoadedAssetBundle = AssetBundle.LoadFromFile(abFilePath);
 
         if (myLoadedAssetBundle == null)
         {
             Debug.Log("Failed to load AssetBundle!");
             return;
         }
-        var prefab = myLoadedAssetBundle.LoadAsset<GameObject>("MyObject");
+        var prefab = myLoadedAssetBundle.LoadAsset<GameObject>("AbAsset");
         Instantiate(prefab);
     }
     
     //UnityWebRequestAssetBundle
-    IEnumerator InstantiateObject(string assetBundleName)
+    IEnumerator InstantiateObject()
     {
-        string uri = "file:///" + Application.dataPath + "/AssetBundles/" + assetBundleName;
+        string uri = "http://127.0.0.1/AssetBundle/unitydemo.unity3d";
         UnityWebRequest request = UnityWebRequestAssetBundle.GetAssetBundle(uri, 0);
         yield return request.SendWebRequest();
         AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(request);
-        GameObject cube = bundle.LoadAsset<GameObject>("Cube");
-        GameObject sprite = bundle.LoadAsset<GameObject>("Sprite");
+        GameObject cube = bundle.LoadAsset<GameObject>("AbAsset");
+        //GameObject sprite = bundle.LoadAsset<GameObject>("Sprite");
         Instantiate(cube);
-        Instantiate(sprite);
+        //Instantiate(sprite);
     }
 
     //加载 AssetBundle 清单
