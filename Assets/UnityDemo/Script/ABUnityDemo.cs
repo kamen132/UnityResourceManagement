@@ -8,12 +8,14 @@ using UnityEngine.Networking;
 public class ABUnityDemo : MonoBehaviour
 {
     private string abFilePath;
-    private string manifestFilePath;
+    private string AbPathWithOutExt;
+    private string AssetsBundleFilePath;
 
     private void Awake()
     {
         abFilePath = Application.dataPath + "/UnityDemo/AssetBundles/unitydemo.unity3d";
-        manifestFilePath = Application.dataPath + "/UnityDemo/AssetBundles/AssetBundles.manifest";
+        AbPathWithOutExt = Application.dataPath + "/UnityDemo/AssetBundles/";
+        AssetsBundleFilePath=Application.dataPath + "/UnityDemo/AssetBundles/AssetBundles";
     }
 
     private void Start()
@@ -23,7 +25,11 @@ public class ABUnityDemo : MonoBehaviour
         //第二种加载
         //LoadFromFile();
 
-        StartCoroutine(InstantiateObject());
+        //StartCoroutine(InstantiateObject());
+
+        //LoadManifest();
+        
+        LoadAssetsByManifest(AbPathWithOutExt);
     }
 
 
@@ -67,15 +73,19 @@ public class ABUnityDemo : MonoBehaviour
     //加载 AssetBundle 清单
     public void LoadManifest()
     {
-        AssetBundle assetBundle = AssetBundle.LoadFromFile(manifestFilePath);
+        AssetBundle assetBundle = AssetBundle.LoadFromFile(AssetsBundleFilePath);
         AssetBundleManifest manifest = assetBundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+        if (manifest!=null)
+        {
+            string name = manifest.name;
+        }
     }
 
     public void LoadAssetsByManifest(string assetBundlePath)
     {
-        AssetBundle assetBundle = AssetBundle.LoadFromFile(manifestFilePath);
+        AssetBundle assetBundle = AssetBundle.LoadFromFile(AssetsBundleFilePath);
         AssetBundleManifest manifest = assetBundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
-        string[] dependencies = manifest.GetAllDependencies("assetBundle"); //传递想要依赖项的捆绑包的名称。
+        string[] dependencies = manifest.GetAllDependencies("AssetBundleInfos"); //传递想要依赖项的捆绑包的名称。
         foreach(string dependency in dependencies)
         {
             AssetBundle.LoadFromFile(Path.Combine(assetBundlePath, dependency));
