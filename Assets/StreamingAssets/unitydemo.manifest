@@ -1,0 +1,41 @@
+ManifestFileVersion: 0
+CRC: 2324173993
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: bdce43007143c5cc94ef4bfd09301a51
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 78892c2f1b6523749dc4a164f60e749a
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+- Class: 198
+  Script: {instanceID: 0}
+- Class: 199
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/WorkAssets/Prefabs/Toon Plant Monster-Purple.prefab
+Dependencies: []

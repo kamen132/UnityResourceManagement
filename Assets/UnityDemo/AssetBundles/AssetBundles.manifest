@@ -1,7 +1,0 @@
-ManifestFileVersion: 0
-CRC: 2721047240
-AssetBundleManifest:
-  AssetBundleInfos:
-    Info_0:
-      Name: unitydemo.unity3d
-      Dependencies: {}
