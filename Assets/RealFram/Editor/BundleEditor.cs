@@ -10,7 +10,7 @@ using UnityEngine;
 public class BundleEditor
 {
     public static string m_BundleTarget = Application.streamingAssetsPath;
-    public static string ABCONFIG_PATH =  "Assets/Editor/ABConfig.asset";
+    public static string ABCONFIG_PATH =  "Assets/RealFram/Editor/ABConfig.asset";
     //key是ab包名，value是路径，所有文件夹ab包dic
     private static Dictionary<string, string> m_AllFileDir = new Dictionary<string, string>();
     //过滤的list
@@ -20,7 +20,7 @@ public class BundleEditor
     //储存所有有效路径
     private static List<string> m_ConfigFil = new List<string>();
     
-    
+    //private static string ABBYTEPATH = RealConfig.GetRealFram().m_ABBytePath;
     [MenuItem("Kamen/打包")]
     public static void Build()
     {
@@ -75,12 +75,12 @@ public class BundleEditor
             }
         }
 
-        foreach (var name in m_AllFileDir.Keys)
+        foreach (string name in m_AllFileDir.Keys)
         {
             SetABName(name, m_AllFileDir[name]);
         }
 
-        foreach (var name in m_AllPrefabDir.Keys)
+        foreach (string name in m_AllPrefabDir.Keys)
         {
             SetABName(name, m_AllPrefabDir[name]);
         }
@@ -94,7 +94,7 @@ public class BundleEditor
             EditorUtility.DisplayProgressBar("清除AB包名", "名字" + oldABName[i], i * 1.0f / oldABName.Length);
         }
 
-        
+        AssetDatabase.Refresh();
 
         EditorUtility.ClearProgressBar();
     }
@@ -125,16 +125,16 @@ public class BundleEditor
 
     } 
     
-    static void SetABName(string abName, string path)
+    static void SetABName(string name, string path)
     {
         AssetImporter assetImporter = AssetImporter.GetAtPath(path);
-        if (assetImporter==null)
+        if (assetImporter == null)
         {
-            Debug.LogError("不存在此路径文件:" + path);
+            Debug.LogError("不存在此路径文件：" + path);
         }
         else
         {
-            assetImporter.assetBundleName = abName;
+            assetImporter.assetBundleName = name;
         }
     }
     static void SetABName(string name, List<string> path)
@@ -181,35 +181,38 @@ public class BundleEditor
         DeleteAB();
         //生成自己的配置表
         WriteData(resPathDic);
+        
         BuildPipeline.BuildAssetBundles(Application.streamingAssetsPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
     }
     
-    static void WriteData(Dictionary<string,string> resPathDic)
+   static void WriteData(Dictionary<string, string> resPathDic)
     {
-        AssetBundleConfig config=new AssetBundleConfig();
+        AssetBundleConfig config = new AssetBundleConfig();
         config.ABList = new List<ABBase>();
-        foreach (var path in resPathDic.Keys)
+        foreach (string path in resPathDic.Keys)
         {
             if (!ValidPath(path))
                 continue;
-            ABBase abBase=new ABBase();
+
+            ABBase abBase = new ABBase();
             abBase.Path = path;
             abBase.Crc = Crc32.GetCrc32(path);
             abBase.ABName = resPathDic[path];
-            abBase.AssetName = path.Remove(0, path.LastIndexOf("/")+1);
+            abBase.AssetName = path.Remove(0, path.LastIndexOf("/") + 1);
             abBase.ABDependce = new List<string>();
-            string[] resDependace = AssetDatabase.GetDependencies(path);
-            for (int i = 0; i < resDependace.Length; i++)
+            string[] resDependce = AssetDatabase.GetDependencies(path);
+            for (int i = 0; i < resDependce.Length; i++)
             {
-                string tmpPath = resDependace[i];
-                if (tmpPath!=path||path.EndsWith(".cs"))
+                string tempPath = resDependce[i];
+                if (tempPath == path || path.EndsWith(".cs"))
                     continue;
 
                 string abName = "";
-                if (resPathDic.TryGetValue(tmpPath,out abName))
+                if (resPathDic.TryGetValue(tempPath, out abName))
                 {
-                    if (abName==resPathDic[path])
+                    if (abName == resPathDic[path])
                         continue;
+
                     if (!abBase.ABDependce.Contains(abName))
                     {
                         abBase.ABDependce.Add(abName);
@@ -218,24 +221,30 @@ public class BundleEditor
             }
             config.ABList.Add(abBase);
         }
-        //写入xml  为了方便认出ab包包含的东西
-        string xmlPath = Application.dataPath + "/AssetBundleConfig.xml";
-        if (File.Exists(xmlPath))
-            File.Delete(xmlPath);
-        FileStream fileStream = new FileStream(xmlPath,FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-        StreamWriter sw = new StreamWriter(fileStream, Encoding.UTF8);
-        XmlSerializer xs=new XmlSerializer(config.GetType());
+
+        //写入xml
+        string xmlPath = Application.dataPath + "/AssetbundleConfig.xml";
+        if (File.Exists(xmlPath)) File.Delete(xmlPath);
+        FileStream fileStream = new FileStream(xmlPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        StreamWriter sw = new StreamWriter(fileStream, System.Text.Encoding.UTF8);
+        XmlSerializer xs = new XmlSerializer(config.GetType());
         xs.Serialize(sw, config);
         sw.Close();
         fileStream.Close();
-        
+
         //写入二进制
-        string bytePath = m_BundleTarget + "/AssetBundleConfig.bytes";
+        //注意：因爲streamAsset目錄無法讀取二進制文件   所以需要吧byte文件達成ab包     注意需要提前吧byte文件放到對應ab包文件目錄下才可正常生成
+        foreach (ABBase abBase in config.ABList)
+        {
+            abBase.Path = "";
+        }
+        string bytePath = "Assets/GameData/Data/AssetBundleConfig.bytes";
         FileStream fs = new FileStream(bytePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        fs.Seek(0, SeekOrigin.Begin);
+        fs.SetLength(0);
         BinaryFormatter bf = new BinaryFormatter();
         bf.Serialize(fs, config);
         fs.Close();
-
     }
 
     static bool ContainABName(string name, string[] strs)
@@ -250,16 +259,19 @@ public class BundleEditor
         return false;
     }
     /// <summary>
-    /// 是否包含所有的ab
+    /// 是否包含在已经有的AB包里，做来做AB包冗余剔除
     /// </summary>
+    /// <param name="path"></param>
     /// <returns></returns>
     static bool ContainAllFileAB(string path)
     {
         for (int i = 0; i < m_AllFileAB.Count; i++)
         {
+            //去除路径前面的路径全部剔除掉
             if (path == m_AllFileAB[i] || (path.Contains(m_AllFileAB[i]) && (path.Replace(m_AllFileAB[i], "")[0] == '/')))
                 return true;
         }
+
         return false;
     }
 }

@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 3646930015
+CRC: 3260520414
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -9,5 +9,8 @@ AssetBundleManifest:
       Name: sound
       Dependencies: {}
     Info_2:
+      Name: data
+      Dependencies: {}
+    Info_3:
       Name: rkprefab.unity3d
       Dependencies: {}
